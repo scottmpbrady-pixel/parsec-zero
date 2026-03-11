@@ -13,6 +13,7 @@ extends CanvasLayer
 @onready var level_label: Label = $LevelLabel
 
 func _ready() -> void:
+	add_to_group("hud")
 	set_hp(5, 5)
 	set_level_name("Reactor Deck — Entry")
 

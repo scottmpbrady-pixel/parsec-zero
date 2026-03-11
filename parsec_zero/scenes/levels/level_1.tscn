@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dvr46d2k3l62q"]
+[gd_scene load_steps=8 format=3 uid="uid://dvr46d2k3l62q"]
 
 [ext_resource type="PackedScene" path="res://scenes/entities/player.tscn" id="1_v2b8m"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="2_hud"]
+[ext_resource type="PackedScene" path="res://scenes/entities/enemy.tscn" id="3_enemy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
 size = Vector2(800, 32)
@@ -25,6 +26,12 @@ size = Vector2(800, 600)
 
 [node name="Player" parent="." instance=ExtResource("1_v2b8m")]
 position = Vector2(400, 300)
+
+[node name="Enemy1" parent="." instance=ExtResource("3_enemy")]
+position = Vector2(200, 200)
+
+[node name="Enemy2" parent="." instance=ExtResource("3_enemy")]
+position = Vector2(600, 400)
 
 [node name="WallTop" type="StaticBody2D" parent="."]
 position = Vector2(400, 16)

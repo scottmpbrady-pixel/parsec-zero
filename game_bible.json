@@ -110,7 +110,18 @@
       }
     ]
   },
-  "enemies": {},
+  "enemies": {
+    "drone": {
+      "hp": 3,
+      "patrol_speed": 60.0,
+      "chase_speed": 110.0,
+      "detection_range": 160.0,
+      "damage": 1,
+      "patrol_distance": 120.0,
+      "scene_path": "res://scenes/entities/enemy.tscn",
+      "script_path": "res://scripts/enemies/enemy_base.gd"
+    }
+  },
   "weapons": {},
   "lore": {
     "backstory": "The space station PSZ-0 (Parsec Zero) has gone dark. You are the last maintenance drone with a functional locomotion module. Objective unknown. Power reserves: critical.",
