@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://parsec_player_v1"]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(28, 28)
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_player_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+; Asset Coordinator will assign texture once player_idle.png is generated.
+; For Phase 1: placeholder color rect renders instead.
+modulate = Color(0.2, 0.8, 1, 1)

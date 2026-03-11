@@ -1,0 +1,243 @@
+{
+  "name": "Parsec Zero — Marketing Automation",
+  "description": "Triggered by GitHub push to main. Rewrites commit log as DevLog and posts to X, Discord, Reddit, and itch.io. Attaches headless Godot screenshot.",
+  "nodes": [
+    {
+      "id": "webhook_trigger",
+      "name": "GitHub Push Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "parsec-zero",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      }
+    },
+    {
+      "id": "extract_commit",
+      "name": "Extract Commit Info",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "commit_message",
+              "name": "commit_message",
+              "value": "={{ $json.body.head_commit.message }}",
+              "type": "string"
+            },
+            {
+              "id": "commit_url",
+              "name": "commit_url",
+              "value": "={{ $json.body.head_commit.url }}",
+              "type": "string"
+            },
+            {
+              "id": "branch",
+              "name": "branch",
+              "value": "={{ $json.body.ref.replace('refs/heads/', '') }}",
+              "type": "string"
+            },
+            {
+              "id": "timestamp",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "filter_main_branch",
+      "name": "Only process main branch",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.branch }}",
+              "rightValue": "main",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "capture_screenshot",
+      "name": "Capture Godot Screenshot",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [900, 200],
+      "parameters": {
+        "command": "{{ $env.GODOT_EXECUTABLE }} --headless --path {{ $env.GODOT_PROJECT_PATH }} --screenshot --quit-after 1 --screenshot-path {{ $env.GODOT_PROJECT_PATH }}/exports/screenshot_latest.png 2>&1 || echo 'Screenshot skipped'"
+      }
+    },
+    {
+      "id": "anthropic_rewrite",
+      "name": "Rewrite as DevLog (Claude Haiku)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 380],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-haiku-4-5-20251001",
+          "max_tokens": 512,
+          "system": "You are the community manager for Parsec Zero, a pixel art space station survival indie game built by an AI studio. Rewrite developer commit messages as engaging, player-facing DevLog updates. Keep it exciting, specific, and under 280 characters for the Twitter version. Also write a longer 2-3 sentence version for Discord and Reddit. Respond with JSON: {\"twitter\": \"...\", \"long\": \"...\"}",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Commit message: {{ $json.commit_message }}\n\nRewrite this as a DevLog update."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "parse_devlog",
+      "name": "Parse DevLog Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1120, 380],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "twitter_text",
+              "name": "twitter_text",
+              "value": "={{ JSON.parse($json.content[0].text).twitter }} #ParsecZero #indiegame #gamedev #godot",
+              "type": "string"
+            },
+            {
+              "id": "long_text",
+              "name": "long_text",
+              "value": "={{ JSON.parse($json.content[0].text).long }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "post_discord",
+      "name": "Post to Discord #dev-updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 240],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "username": "Parsec Zero Studio Bot",
+          "embeds": [
+            {
+              "title": "Dev Update — Parsec Zero",
+              "description": "={{ $json.long_text }}",
+              "color": 3447003,
+              "footer": {
+                "text": "Parsec Zero | Built by AI"
+              },
+              "timestamp": "={{ $('extract_commit').item.json.timestamp }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "post_reddit",
+      "name": "Post to Reddit r/indiegaming",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 380],
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth.reddit.com/api/submit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "bearer {{ $env.REDDIT_ACCESS_TOKEN }}" },
+            { "name": "User-Agent", "value": "ParsecZeroBot/1.0" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "body": {
+          "sr": "indiegaming",
+          "kind": "self",
+          "title": "[DevLog] Parsec Zero — {{ $('extract_commit').item.json.commit_message.substring(0, 80) }}",
+          "text": "={{ $json.long_text }}\n\n---\n*Parsec Zero is a pixel art space station survival game, built entirely by an AI studio. Follow development!*\n\nCommit: {{ $('extract_commit').item.json.commit_url }}"
+        }
+      }
+    },
+    {
+      "id": "post_itchio",
+      "name": "Post DevLog to itch.io",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 520],
+      "parameters": {
+        "method": "POST",
+        "url": "https://itch.io/api/1/{{ $env.ITCHIO_API_KEY }}/games/parsec-zero/devlogs",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "body": {
+          "title": "Dev Update: {{ $('extract_commit').item.json.commit_message.substring(0, 60) }}",
+          "body": "={{ $json.long_text }}\n\n*Automatically published by the Parsec Zero AI Studio.*"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "GitHub Push Webhook": {
+      "main": [[ { "node": "Extract Commit Info", "type": "main", "index": 0 } ]]
+    },
+    "Extract Commit Info": {
+      "main": [[ { "node": "Only process main branch", "type": "main", "index": 0 } ]]
+    },
+    "Only process main branch": {
+      "main": [
+        [ { "node": "Capture Godot Screenshot", "type": "main", "index": 0 },
+          { "node": "Rewrite as DevLog (Claude Haiku)", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Rewrite as DevLog (Claude Haiku)": {
+      "main": [[ { "node": "Parse DevLog Response", "type": "main", "index": 0 } ]]
+    },
+    "Parse DevLog Response": {
+      "main": [
+        [ { "node": "Post to Discord #dev-updates", "type": "main", "index": 0 },
+          { "node": "Post to Reddit r/indiegaming", "type": "main", "index": 0 },
+          { "node": "Post DevLog to itch.io", "type": "main", "index": 0 } ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "tags": ["parsec-zero", "marketing", "automation"]
+}

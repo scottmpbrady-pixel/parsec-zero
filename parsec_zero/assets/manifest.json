@@ -1,0 +1,10 @@
+{
+  "_meta": {
+    "description": "Parsec Zero asset manifest. Maps asset names to Godot resource paths.",
+    "managed_by": "Asset Coordinator Agent",
+    "note": "Developer reads this file to wire assets into scenes. Never hardcode paths in scripts."
+  },
+  "sprites": {},
+  "music": {},
+  "sfx": {}
+}

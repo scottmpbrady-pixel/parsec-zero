@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://parsec_hud_v1"]
+
+; HUD — Phase 1 stub. Displays nothing yet.
+; Phase 2+: HP bar, ammo counter, objective tracker.
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 30.0
+text = "PARSEC ZERO"
+modulate = Color(0.2, 0.8, 1, 0.6)

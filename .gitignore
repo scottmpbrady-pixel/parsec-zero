@@ -1,0 +1,39 @@
+# ── Environment ───────────────────────────────────────────────────────────────
+.env
+*.env.local
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.python-version
+
+# ── Logs & budget tracking ────────────────────────────────────────────────────
+logs/tokens.jsonl
+logs/budget.json
+
+# ── ChromaDB (local vector DB — do not commit) ───────────────────────────────
+memory/chromadb/
+
+# ── Godot build outputs ───────────────────────────────────────────────────────
+parsec_zero/.godot/
+parsec_zero/exports/*.exe
+parsec_zero/exports/*.html
+parsec_zero/exports/*.pck
+parsec_zero/exports/*.wasm
+parsec_zero/exports/screenshot_latest.png
+
+# ── Generated assets (large binaries — use Git LFS or omit from commits) ─────
+parsec_zero/assets/sprites/*.png
+parsec_zero/assets/audio/music/*.wav
+parsec_zero/assets/audio/sfx/*.wav
+
+# ── Escalation flag (auto-generated, resolve and delete) ─────────────────────
+ESCALATION.md
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

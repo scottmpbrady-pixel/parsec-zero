@@ -1,0 +1,62 @@
+Step 1: Establish the Core Infrastructure and Game Engine
+You must select tools that AI agents can easily read, write, and execute.
+
+The Game Engine: Use Godot. This is critical. Unlike other engines that rely heavily on proprietary visual editors or binary files, Godot's scene files (.tscn) and configuration files are entirely plain text. AI agents can easily parse, write, and modify plain text files to construct game levels and objects without ever opening a graphical interface.
+
+The Programming Language: Agents will write GDScript, Godot’s native language, which is very similar to Python and highly represented in AI training data.
+
+The Orchestration Layer: Install Python and a multi-agent framework like CrewAI or Microsoft AutoGen on your machine. These frameworks allow you to define specific personas, give them access to local folders, and let them talk to each other to solve problems.
+
+Step 2: Define the Agent Swarm and Roles
+You will configure a Python script that instantiates distinct AI agents, each with a rigid system prompt, a specific role, and isolated tool access.
+
+The Systems Designer (Agent 1):
+
+Role: Defines the mechanics, level progression, and lore for Parsec Zero.
+
+Output: Generates highly structured JSON or Markdown documents detailing exactly how the player moves, enemy stats, and UI layouts.
+
+The Lead Developer (Agent 2):
+
+Role: Reads the Designer's JSON files and writes the actual GDScript files and Godot scene files.
+
+Tools Provided: Read/Write access to the local Godot project directory. Access to Godot's command-line interface (CLI) to run headless syntax checks.
+
+The Asset Coordinator (Agent 3):
+
+Role: Generates 2D sprites, UI elements, and background music.
+
+Tools Provided: API keys for image generation models (to create sprite sheets) and audio generation models. It saves .png and .wav files directly into the Godot res://assets/ folder and passes the exact file paths back to the Developer.
+
+The QA Tester (Agent 4):
+
+Role: Reviews code logs and error reports. If the game crashes upon compiling, this agent reads the stack trace and instructs the Developer on exactly which lines of code to rewrite.
+
+Step 3: Engineer the Autonomous Build Loop
+Agents make mistakes, so the system must self-correct without your intervention. You will build an automated feedback loop using Python.
+
+Task Initiation: You provide the initial seed prompt: "Design the first level of Parsec Zero, featuring a derelict space station and a basic movement controller."
+
+Drafting: The Designer outputs the spec. The Developer writes the player.gd script and the level_1.tscn file.
+
+Headless Execution: Your Python orchestrator automatically triggers a command-line test of the Godot project: godot --headless --check-only.
+
+Error Handling: If Godot returns a syntax error, the orchestrator catches the output log and sends it to the QA agent. The QA agent tells the Developer to fix it. This loop repeats until the --check-only command returns zero errors.
+
+Compilation: Once clean, the orchestrator triggers Godot to export an executable .exe or .html build of the game.
+
+Step 4: Automate the Marketing and Publishing Pipeline
+An indie studio needs visibility, which can also be fully automated using a background workflow tool like n8n or Make.com.
+
+Git Commit Webhooks: Every time your Developer agent successfully completes a feature and commits the code to GitHub, trigger a webhook to n8n.
+
+The Community Manager Agent: n8n passes the Git commit log (e.g., "Added plasma rifle mechanics and enemy pathfinding") to a dedicated marketing LLM.
+
+Content Generation: The marketing agent rewrites the technical log into an engaging, player-facing DevLog update.
+
+Distribution: n8n automatically pushes this DevLog to X (Twitter), a dedicated Discord server, and Reddit, keeping an audience continuously updated on Parsec Zero's development progress while you sleep.
+
+Step 5: Implement Financial and Safety Guardrails
+API Limits: Because the agents will iterate and loop continuously to fix errors, you must set hard API spend limits on your LLM provider (e.g., OpenAI, Anthropic, or Google Cloud) to prevent a sudden spike in costs if the Developer agent gets stuck in an infinite debugging loop.
+
+Max Iterations: Hardcode a "max_retries" limit in your orchestration script. If the agents cannot fix a Godot bug within 5 attempts, the system should pause and alert you to manually intervene.

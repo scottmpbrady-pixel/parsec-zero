@@ -1,0 +1,88 @@
+{
+  "_meta": {
+    "version": "0.1.0",
+    "description": "Single source of truth for all Parsec Zero game mechanics, stats, and lore.",
+    "managed_by": "Project Manager Agent",
+    "last_updated": "2026-03-10",
+    "note": "All agents must query this file before creating or modifying any game content."
+  },
+
+  "game": {
+    "title": "Parsec Zero",
+    "genre": "2D action-adventure",
+    "setting": "Derelict space station — deep space, far future",
+    "art_style": "pixel art, 32x32 sprites, sci-fi space station theme, dark palette, neon accents",
+    "engine": "Godot 4.x",
+    "target_platform": ["Windows", "HTML5"]
+  },
+
+  "player": {
+    "hp": 5,
+    "max_hp": 5,
+    "speed": 200.0,
+    "sprite_size": "32x32",
+    "collision_size": "28x28",
+    "controls": {
+      "move_up": ["ui_up", "W"],
+      "move_down": ["ui_down", "S"],
+      "move_left": ["ui_left", "A"],
+      "move_right": ["ui_right", "D"]
+    },
+    "starting_weapon": "none",
+    "scene_path": "res://scenes/entities/player.tscn",
+    "script_path": "res://scripts/player/player.gd"
+  },
+
+  "levels": {
+    "level_1": {
+      "name": "Reactor Deck — Entry",
+      "description": "A single room of the derelict space station. Flickering lights, broken consoles, cracked floor panels.",
+      "scene_path": "res://scenes/levels/level_1.tscn",
+      "room_size": "800x600",
+      "player_spawn": {"x": 400, "y": 300},
+      "enemies": [],
+      "phase": 1,
+      "status": "in_progress",
+      "phase_1_requirements": [
+        "Player spawns at center",
+        "WASD/arrow key movement works",
+        "Collision with walls works",
+        "Headless smoke test passes",
+        "Exports to runnable .exe"
+      ]
+    }
+  },
+
+  "enemies": {},
+
+  "weapons": {},
+
+  "lore": {
+    "backstory": "The space station PSZ-0 (Parsec Zero) has gone dark. You are the last maintenance drone with a functional locomotion module. Objective unknown. Power reserves: critical.",
+    "factions": []
+  },
+
+  "ui": {
+    "hud_scene": "res://scenes/ui/hud.tscn",
+    "menu_scene": "res://scenes/ui/menu.tscn"
+  },
+
+  "art_assets": {
+    "style_prompt_prefix": "pixel art, 32x32, sci-fi space station, dark palette, neon accents, no text, transparent background",
+    "sprite_manifest": "res://assets/manifest.json",
+    "sprite_dir": "res://assets/sprites/",
+    "music_dir": "res://assets/audio/music/",
+    "sfx_dir": "res://assets/audio/sfx/"
+  },
+
+  "technical": {
+    "godot_version": "4.x",
+    "scripting_language": "GDScript",
+    "staging_dir": "agents_staging/",
+    "exports_dir": "exports/",
+    "tests_dir": "tests/",
+    "smoke_test_scene": "res://tests/smoke_test.tscn"
+  },
+
+  "session_history": []
+}
