@@ -25,10 +25,13 @@ var _damage_cooldown: float = 0.0
 func _ready() -> void:
 	_patrol_origin = global_position
 	_patrol_target = _patrol_origin + Vector2(patrol_distance, 0)
-	_player = get_tree().get_first_node_in_group("player")
 
 func _physics_process(delta: float) -> void:
 	_damage_cooldown = max(0.0, _damage_cooldown - delta)
+
+	# Lazy lookup — player may not be in group during _ready()
+	if _player == null:
+		_player = get_tree().get_first_node_in_group("player")
 
 	match _state:
 		State.PATROL:
@@ -59,7 +62,7 @@ func _do_chase(_delta: float) -> void:
 	move_and_slide()
 
 	# Damage on contact
-	if _damage_cooldown <= 0.0 and global_position.distance_to(_player.global_position) < 24.0:
+	if _damage_cooldown <= 0.0 and global_position.distance_to(_player.global_position) < 48.0:
 		if _player.has_method("take_damage"):
 			_player.take_damage(damage)
 			_damage_cooldown = 1.0
