@@ -14,9 +14,8 @@ import json
 import os
 from pathlib import Path
 
-from crewai import Agent
+from crewai import Agent, LLM
 from crewai.tools import tool
-from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 
 from tools.chromadb_tools import embed_design_document, query_design_memory
@@ -26,10 +25,10 @@ load_dotenv()
 GAME_BIBLE_PATH = Path(os.getenv("GODOT_PROJECT_PATH", "parsec_zero")).parent / "game_bible.json"
 
 # ── LLM ──────────────────────────────────────────────────────────────────────
-sonnet = ChatAnthropic(
-    model="claude-sonnet-4-6",
-    anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
-    max_tokens=8192,
+sonnet = LLM(
+    model="anthropic/claude-haiku-4-5-20251001",
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
+    max_tokens=4096,
 )
 
 
@@ -105,6 +104,6 @@ systems_designer_agent = Agent(
     ],
     llm=sonnet,
     verbose=True,
-    max_iter=5,
+    max_iter=3,
     allow_delegation=False,
 )

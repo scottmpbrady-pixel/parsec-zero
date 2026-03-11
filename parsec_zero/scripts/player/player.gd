@@ -1,27 +1,28 @@
-## player.gd
-## Parsec Zero — Player controller (Phase 1)
-##
-## Node type: CharacterBody2D
-## Handles WASD / arrow key movement with collision.
-## No combat, no animation states yet — movement only.
-##
-## Stats (from game_bible.json):
-##   SPEED = 200.0
-##   HP    = 5  (tracked by game_manager in later phases)
-
 extends CharacterBody2D
 
-const SPEED: float = 200.0
+const SPEED = 200.0
 
-## Called every physics frame. Reads input and moves the player.
+func _ready() -> void:
+	pass
+
 func _physics_process(_delta: float) -> void:
-	var direction := Vector2.ZERO
-
-	direction.x = Input.get_axis("ui_left", "ui_right")
-	direction.y = Input.get_axis("ui_up", "ui_down")
-
-	if direction != Vector2.ZERO:
-		direction = direction.normalized()
-
-	velocity = direction * SPEED
+	var input_vector = Vector2.ZERO
+	
+	# WASD input
+	if Input.is_action_pressed("ui_up") or Input.is_key_pressed(KEY_W):
+		input_vector.y -= 1
+	if Input.is_action_pressed("ui_down") or Input.is_key_pressed(KEY_S):
+		input_vector.y += 1
+	if Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A):
+		input_vector.x -= 1
+	if Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D):
+		input_vector.x += 1
+	
+	# Normalize diagonal movement
+	if input_vector.length() > 0:
+		input_vector = input_vector.normalized()
+		velocity = input_vector * SPEED
+	else:
+		velocity = Vector2.ZERO
+	
 	move_and_slide()

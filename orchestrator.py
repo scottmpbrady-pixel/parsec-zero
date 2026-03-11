@@ -22,9 +22,14 @@ import time
 from datetime import date, datetime
 from pathlib import Path
 
+import litellm
 import click
 import structlog
 from dotenv import load_dotenv
+
+# Tell LiteLLM to drop unsupported parameters (e.g. assistant prefill)
+# instead of raising errors. Required for CrewAI + Claude compatibility.
+litellm.drop_params = True
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table

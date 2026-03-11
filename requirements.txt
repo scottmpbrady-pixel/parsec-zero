@@ -7,8 +7,6 @@ crewai-tools>=0.1.0
 
 # Anthropic LLM
 anthropic>=0.25.0
-langchain-anthropic>=0.1.0
-langchain-core>=0.1.0
 
 # Vector memory
 chromadb>=0.4.0

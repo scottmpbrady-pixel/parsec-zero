@@ -17,9 +17,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from crewai import Agent
+from crewai import Agent, LLM
 from crewai.tools import tool
-from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 
 from tools.godot_tools import promote_from_staging
@@ -32,10 +31,10 @@ PROJECT_ROOT = Path(os.getenv("GODOT_PROJECT_PATH", "parsec_zero")).parent
 STATUS_PATH = PROJECT_ROOT / "STATUS.md"
 GAME_BIBLE_PATH = PROJECT_ROOT / "game_bible.json"
 
-sonnet = ChatAnthropic(
-    model="claude-sonnet-4-6",
-    anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
-    max_tokens=8192,
+sonnet = LLM(
+    model="anthropic/claude-haiku-4-5-20251001",
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
+    max_tokens=4096,
 )
 
 
@@ -200,6 +199,6 @@ project_manager_agent = Agent(
     ],
     llm=sonnet,
     verbose=True,
-    max_iter=10,
+    max_iter=5,
     allow_delegation=False,
 )

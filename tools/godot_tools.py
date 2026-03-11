@@ -33,17 +33,15 @@ def _run(cmd: list[str], timeout: int = 120) -> tuple[int, str, str]:
 @tool("Run Godot syntax check")
 def run_godot_syntax_check(target_script: str = "") -> str:
     """
-    Run `godot --headless --check-only` on the project to validate GDScript syntax.
-    Pass an optional relative path to check a single script file, or leave empty
-    to check the entire project.
+    Run `godot --headless --check-only` on the entire project to validate GDScript syntax.
+    The target_script argument is accepted but ignored — Godot checks all scripts in the
+    project directory, which includes agents_staging/.
 
     Returns a JSON-style summary: {"status": "ok"|"error", "output": "...", "errors": [...]}
     """
     cmd = [GODOT_EXE, "--headless", "--check-only", "--path", str(PROJECT_PATH)]
-    if target_script:
-        cmd += [target_script]
 
-    returncode, stdout, stderr = _run(cmd)
+    returncode, stdout, stderr = _run(cmd, timeout=60)
     combined = stdout + stderr
     errors = [line for line in combined.splitlines() if "ERROR" in line or "error" in line.lower()]
 

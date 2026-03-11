@@ -13,8 +13,7 @@ LLM: Claude Haiku 4.5 — reads logs and diffs only; fast and cheap.
 """
 import os
 
-from crewai import Agent
-from langchain_anthropic import ChatAnthropic
+from crewai import Agent, LLM
 from dotenv import load_dotenv
 
 from tools.godot_tools import (
@@ -31,9 +30,9 @@ from tools.git_tools import git_diff_staged
 
 load_dotenv()
 
-haiku = ChatAnthropic(
-    model="claude-haiku-4-5-20251001",
-    anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
+haiku = LLM(
+    model="anthropic/claude-haiku-4-5-20251001",
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
     max_tokens=4096,
 )
 

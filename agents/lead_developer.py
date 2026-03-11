@@ -12,9 +12,7 @@ LLM: Claude Sonnet 4.6 (best at GDScript / code generation)
 """
 import os
 
-from crewai import Agent
-from crewai.tools import tool
-from langchain_anthropic import ChatAnthropic
+from crewai import Agent, LLM
 from dotenv import load_dotenv
 
 from tools.godot_tools import (
@@ -28,10 +26,10 @@ from tools.git_tools import git_create_feature_branch, git_commit_feature, git_d
 
 load_dotenv()
 
-sonnet = ChatAnthropic(
-    model="claude-sonnet-4-6",
-    anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
-    max_tokens=8192,
+sonnet = LLM(
+    model="anthropic/claude-haiku-4-5-20251001",
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
+    max_tokens=4096,
 )
 
 lead_developer_agent = Agent(
@@ -63,6 +61,6 @@ lead_developer_agent = Agent(
     ],
     llm=sonnet,
     verbose=True,
-    max_iter=10,
+    max_iter=5,
     allow_delegation=False,
 )

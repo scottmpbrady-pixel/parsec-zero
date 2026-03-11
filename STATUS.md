@@ -19,7 +19,7 @@
 - [ ] ChromaDB initialized with design documents
 - [ ] `player.tscn` verified by QA
 - [ ] `level_1.tscn` verified by QA
-- [ ] Headless smoke test passes
+- [x] Headless smoke test passes
 - [ ] `.exe` build exports and runs
 
 ---
