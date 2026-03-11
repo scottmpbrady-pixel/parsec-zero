@@ -4,7 +4,10 @@
     "managed_by": "Asset Coordinator Agent",
     "note": "Developer reads this file to wire assets into scenes. Never hardcode paths in scripts."
   },
-  "sprites": {},
+  "sprites": {
+    "player_idle": "res://assets/sprites/player_idle.png",
+    "station_tileset": "res://assets/sprites/station_tileset.png"
+  },
   "music": {},
   "sfx": {}
 }

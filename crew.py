@@ -39,13 +39,12 @@ task_design_level_1 = Task(
 
 task_generate_assets = Task(
     description=(
-        "Generate pixel art assets for Level 1. Query ChromaDB for level_1_spec first.\n"
+        "Generate pixel art sprites for Level 1. Query ChromaDB for level_1_spec first.\n"
         "1. generate_sprite(asset_name='player_idle', description='humanoid maintenance drone, front-facing, sci-fi suit')\n"
         "2. generate_sprite(asset_name='station_tileset', description='sci-fi space station floor tile, metal grating, neon trim, seamless')\n"
-        "3. generate_music(track_name='level_1_ambient', description='dark ambient sci-fi, slow electronic pulse, 60bpm')\n"
-        "4. Return the updated asset manifest."
+        "3. Return the updated asset manifest."
     ),
-    expected_output="player_idle.png, station_tileset.png, level_1_ambient.wav saved. Asset manifest returned.",
+    expected_output="player_idle.png and station_tileset.png saved to res://assets/sprites/. Asset manifest returned.",
     agent=asset_coordinator_agent,
     context=[task_design_level_1],
 )
@@ -58,7 +57,8 @@ task_develop_level_1 = Task(
         "3. write_staging_file('scripts/player/player.gd'): CharacterBody2D, SPEED=200.0, WASD+arrow movement, move_and_slide()\n"
         "4. write_staging_file('scripts/systems/game_manager.gd'): extends Node, prints level name on _ready()\n"
         "5. write_staging_file('scenes/entities/player.tscn'): CharacterBody2D + CollisionShape2D(28x28) + Sprite2D, script=player.gd\n"
-        "6. write_staging_file('scenes/levels/level_1.tscn'): Node2D + Player instance at (400,300) + 4 StaticBody2D walls\n"
+        "6. write_staging_file('scenes/levels/level_1.tscn'): Node2D + Player instance at (400,300) + 4 StaticBody2D walls. "
+        "CRITICAL: shapes MUST use [sub_resource type='RectangleShape2D' id='unique_id'] blocks defined at the top of the file, then referenced as shape = SubResource('unique_id'). Never write shape = RectangleShape2D inline.\n"
         "7. run_godot_syntax_check()\n"
         "8. git_commit_feature('Add Level 1 player movement and room', ['parsec_zero/agents_staging/'])"
     ),
@@ -73,7 +73,8 @@ task_qa_review = Task(
         "1. read_staging_file each of: scripts/player/player.gd, scripts/systems/game_manager.gd, "
         "scenes/entities/player.tscn, scenes/levels/level_1.tscn\n"
         "2. Verify: player.gd has SPEED=200.0, CharacterBody2D, move_and_slide(). "
-        "level_1.tscn has Player at (400,300) and 4 wall StaticBody2D nodes.\n"
+        "level_1.tscn has Player at (400,300) and 4 wall StaticBody2D nodes. "
+        "REJECT if level_1.tscn uses 'shape = RectangleShape2D' inline — shapes must use SubResource references.\n"
         "3. run_godot_syntax_check() — must be status:ok\n"
         "4. run_godot_smoke_test() — must be status:passed\n"
         "5. On any failure: embed_error_log() and return REJECTED with file/line/fix.\n"

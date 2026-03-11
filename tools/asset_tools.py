@@ -1,7 +1,7 @@
 """
 Asset generation tools for the Asset Coordinator agent.
 
-- Sprites: Stable Diffusion via Automatic1111 REST API (local GPU)
+- Sprites: Stable Diffusion via ComfyUI REST API (local GPU)
 - Music: Suno API
 - SFX: ElevenLabs Sound Effects API
 - Manifest: JSON file mapping asset names to file paths
@@ -10,6 +10,7 @@ import base64
 import json
 import os
 import time
+import uuid
 from pathlib import Path
 
 import requests
@@ -18,11 +19,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SD_URL = os.getenv("STABLE_DIFFUSION_URL", "http://localhost:7860")
+COMFYUI_URL = os.getenv("STABLE_DIFFUSION_URL", "http://localhost:8188")
 SD_STYLE_PREFIX = os.getenv(
     "SD_STYLE_PREFIX",
     "pixel art, 32x32, sci-fi space station, dark palette, neon accents",
 )
+SD_MODEL = os.getenv("SD_MODEL_CHECKPOINT", "PixelartSpritesheet_V.1.ckpt")
 SUNO_API_KEY = os.getenv("SUNO_API_KEY", "")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 PROJECT_PATH = Path(os.getenv("GODOT_PROJECT_PATH", "parsec_zero"))
@@ -40,10 +42,40 @@ def _save_manifest(manifest: dict) -> None:
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2))
 
 
-@tool("Generate pixel art sprite via Stable Diffusion")
+def _build_comfyui_workflow(prompt: str, negative_prompt: str, width: int, height: int, filename_prefix: str) -> dict:
+    """Build a basic ComfyUI txt2img workflow JSON."""
+    return {
+        "1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": SD_MODEL}},
+        "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["1", 1]}},
+        "3": {"class_type": "CLIPTextEncode", "inputs": {"text": negative_prompt, "clip": ["1", 1]}},
+        "4": {"class_type": "EmptyLatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
+        "5": {
+            "class_type": "KSampler",
+            "inputs": {
+                "seed": int(time.time()),
+                "steps": 20,
+                "cfg": 7.5,
+                "sampler_name": "dpmpp_2m",
+                "scheduler": "karras",
+                "denoise": 1.0,
+                "model": ["1", 0],
+                "positive": ["2", 0],
+                "negative": ["3", 0],
+                "latent_image": ["4", 0],
+            },
+        },
+        "6": {"class_type": "VAEDecode", "inputs": {"samples": ["5", 0], "vae": ["1", 2]}},
+        "7": {
+            "class_type": "SaveImage",
+            "inputs": {"filename_prefix": filename_prefix, "images": ["6", 0]},
+        },
+    }
+
+
+@tool("Generate pixel art sprite via ComfyUI")
 def generate_sprite(asset_name: str, description: str, width: int = 512, height: int = 512) -> str:
     """
-    Generate a pixel art sprite using Stable Diffusion (Automatic1111, local GPU).
+    Generate a pixel art sprite using Stable Diffusion via ComfyUI (local GPU).
     The style prefix is automatically prepended to ensure visual consistency.
     The image is saved to res://assets/sprites/<asset_name>.png.
 
@@ -57,33 +89,51 @@ def generate_sprite(asset_name: str, description: str, width: int = 512, height:
     """
     full_prompt = f"{SD_STYLE_PREFIX}, {description}, no background, centered sprite"
     negative_prompt = "blurry, realistic, 3d, photo, watermark, text, ui elements"
+    client_id = str(uuid.uuid4())
 
-    payload = {
-        "prompt": full_prompt,
-        "negative_prompt": negative_prompt,
-        "width": width,
-        "height": height,
-        "steps": 20,
-        "cfg_scale": 7.5,
-        "sampler_name": "DPM++ 2M Karras",
-        "batch_size": 1,
-    }
+    workflow = _build_comfyui_workflow(full_prompt, negative_prompt, width, height, asset_name)
 
     try:
-        resp = requests.post(f"{SD_URL}/sdapi/v1/txt2img", json=payload, timeout=120)
+        # Submit workflow
+        resp = requests.post(
+            f"{COMFYUI_URL}/prompt",
+            json={"prompt": workflow, "client_id": client_id},
+            timeout=30,
+        )
         resp.raise_for_status()
-        image_b64 = resp.json()["images"][0]
-        image_data = base64.b64decode(image_b64)
+        prompt_id = resp.json()["prompt_id"]
 
-        out_path = PROJECT_PATH / "assets" / "sprites" / f"{asset_name}.png"
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_bytes(image_data)
+        # Poll for completion
+        for _ in range(120):
+            time.sleep(2)
+            history = requests.get(f"{COMFYUI_URL}/history/{prompt_id}", timeout=10).json()
+            if prompt_id in history:
+                outputs = history[prompt_id]["outputs"]
+                for node_output in outputs.values():
+                    if "images" in node_output:
+                        image_info = node_output["images"][0]
+                        image_resp = requests.get(
+                            f"{COMFYUI_URL}/view",
+                            params={"filename": image_info["filename"], "subfolder": image_info.get("subfolder", ""), "type": image_info["type"]},
+                            timeout=30,
+                        )
+                        out_path = PROJECT_PATH / "assets" / "sprites" / f"{asset_name}.png"
+                        out_path.parent.mkdir(parents=True, exist_ok=True)
+                        out_path.write_bytes(image_resp.content)
+                        manifest = _load_manifest()
+                        manifest["sprites"][asset_name] = f"res://assets/sprites/{asset_name}.png"
+                        _save_manifest(manifest)
+                        return f"OK: Sprite saved to {out_path}. Manifest updated."
 
-        manifest = _load_manifest()
-        manifest["sprites"][asset_name] = f"res://assets/sprites/{asset_name}.png"
-        _save_manifest(manifest)
+        return "ERROR: ComfyUI generation timed out after 4 minutes."
 
-        return f"OK: Sprite saved to {out_path}. Manifest updated."
+    except requests.exceptions.ConnectionError:
+        return (
+            f"ERROR: Cannot connect to ComfyUI at {COMFYUI_URL}. "
+            "Is ComfyUI running? Start it with: python C:/users/scott/comfyui/main.py"
+        )
+    except Exception as e:
+        return f"ERROR: Sprite generation failed: {e}"
 
     except requests.exceptions.ConnectionError:
         return (

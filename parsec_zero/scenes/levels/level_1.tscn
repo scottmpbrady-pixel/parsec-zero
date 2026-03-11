@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://cwy3uxlolm75m"]
+[gd_scene load_steps=6 format=3 uid="uid://dvr46d2k3l62q"]
 
-[ext_resource type="PackedScene" uid="uid://diqkr44bfvjxe" path="res://scenes/entities/player.tscn" id="1_2m8xo"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player.tscn" id="1_v2b8m"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
 size = Vector2(800, 32)
@@ -16,7 +16,7 @@ size = Vector2(32, 600)
 
 [node name="Level1" type="Node2D"]
 
-[node name="Player" parent="." instance=ExtResource("1_2m8xo")]
+[node name="Player" parent="." instance=ExtResource("1_v2b8m")]
 position = Vector2(400, 300)
 
 [node name="WallTop" type="StaticBody2D" parent="."]

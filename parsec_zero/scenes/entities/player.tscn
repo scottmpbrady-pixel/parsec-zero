@@ -1,18 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://diqkr44bfvjxe"]
+[gd_scene format=3 uid="uid://cp84v3b3v3n44"]
 
-[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_pj4xn"]
+[ext_resource type="Script" uid="uid://b7rpm2tpfrnql" path="res://scripts/player/player.gd" id="1_c5j39"]
+[ext_resource type="Texture2D" uid="uid://dgrnxsfuogasj" path="res://assets/sprites/player_idle.png" id="2_xkj8l"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_8a1qf"]
-size = Vector2(28, 28)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bj8kl"]
+size = Vector2(40, 48)
 
-[node name="Player" type="CharacterBody2D"]
-position = Vector2(0, 0)
-script = ExtResource("1_pj4xn")
+[node name="Player" type="CharacterBody2D" unique_id=1128658941]
+script = ExtResource("1_c5j39")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(2, 2)
-shape = SubResource("RectangleShape2D_8a1qf")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1572658784]
+shape = SubResource("RectangleShape2D_bj8kl")
 
-[node name="Visual" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
-color = Color(0.2, 0.8, 1, 1)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1553789801]
+scale = Vector2(0.33, 0.2)
+texture = ExtResource("2_xkj8l")
+region_enabled = true
+region_rect = Rect2(3, 149, 121, 236)

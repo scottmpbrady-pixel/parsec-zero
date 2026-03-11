@@ -47,7 +47,7 @@
   },
   "levels": {
     "level_1": {
-      "name": "Reactor Deck \u00e2\u20ac\u201d Entry",
+      "name": "Reactor Deck \u2014 Entry",
       "description": "A single room of the derelict space station. Flickering lights, broken consoles, cracked floor panels.",
       "scene_path": "res://scenes/levels/level_1.tscn",
       "room_size": "800x600",
@@ -57,14 +57,15 @@
       },
       "enemies": [],
       "phase": 1,
-      "status": "in_progress",
+      "status": "spec_locked",
       "phase_1_requirements": [
         "Player spawns at center",
         "WASD/arrow key movement works",
         "Collision with walls works",
         "Headless smoke test passes",
         "Exports to runnable .exe"
-      ]
+      ],
+      "spec_doc_id": "level_1_spec"
     },
     "level_1_walls": [
       {
