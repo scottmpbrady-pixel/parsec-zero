@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://dvr46d2k3l62q"]
+[gd_scene load_steps=10 format=3 uid="uid://parsec_level2_v1"]
 
-[ext_resource type="PackedScene" path="res://scenes/entities/player.tscn" id="1_v2b8m"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="2_hud"]
 [ext_resource type="PackedScene" path="res://scenes/entities/enemy.tscn" id="3_enemy"]
 [ext_resource type="PackedScene" path="res://scenes/entities/door.tscn" id="4_door"]
+[ext_resource type="Script" path="res://scripts/systems/game_manager.gd" id="5_gm"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
 size = Vector2(800, 32)
@@ -17,26 +18,30 @@ size = Vector2(32, 600)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_right"]
 size = Vector2(32, 600)
 
-[node name="Level1" type="Node2D"]
+[node name="Level2" type="Node2D"]
+script = ExtResource("5_gm")
 
 [node name="Background" type="ColorRect" parent="."]
-color = Color(0.06, 0.06, 0.12, 1)
+color = Color(0.04, 0.08, 0.1, 1)
 size = Vector2(800, 600)
 
 [node name="HUD" parent="." instance=ExtResource("2_hud")]
 
-[node name="Player" parent="." instance=ExtResource("1_v2b8m")]
-position = Vector2(400, 300)
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(400, 480)
 
 [node name="Enemy1" parent="." instance=ExtResource("3_enemy")]
 position = Vector2(200, 200)
 
 [node name="Enemy2" parent="." instance=ExtResource("3_enemy")]
-position = Vector2(600, 400)
+position = Vector2(550, 300)
 
-[node name="DoorToLevel2" parent="." instance=ExtResource("4_door")]
-position = Vector2(400, 48)
-target_scene = "res://scenes/levels/level_2.tscn"
+[node name="Enemy3" parent="." instance=ExtResource("3_enemy")]
+position = Vector2(650, 150)
+
+[node name="DoorBack" parent="." instance=ExtResource("4_door")]
+position = Vector2(400, 560)
+target_scene = "res://scenes/levels/level_1.tscn"
 
 [node name="WallTop" type="StaticBody2D" parent="."]
 position = Vector2(400, 16)

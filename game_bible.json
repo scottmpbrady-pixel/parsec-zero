@@ -67,6 +67,16 @@
       ],
       "spec_doc_id": "level_1_spec"
     },
+    "level_2": {
+      "name": "Reactor Deck — Corridor",
+      "description": "A second room deeper in the station. Darker, more enemies.",
+      "scene_path": "res://scenes/levels/level_2.tscn",
+      "room_size": "800x600",
+      "player_spawn": {"x": 400, "y": 480},
+      "enemies": 3,
+      "phase": 3,
+      "status": "complete"
+    },
     "level_1_walls": [
       {
         "id": "wall_top",
