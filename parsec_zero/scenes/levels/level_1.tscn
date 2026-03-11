@@ -16,6 +16,10 @@ size = Vector2(32, 600)
 
 [node name="Level1" type="Node2D"]
 
+[node name="Background" type="ColorRect" parent="."]
+color = Color(0.06, 0.06, 0.12, 1)
+size = Vector2(800, 600)
+
 [node name="Player" parent="." instance=ExtResource("1_v2b8m")]
 position = Vector2(400, 300)
 
